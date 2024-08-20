@@ -56,7 +56,7 @@ def compute_gradient_color(start_color, end_color, n):
 
 def plot_speedmeter_pacemeter_fuelmeter():
     # Define the speed range and calculate the corresponding time to cover 10 km
-    speeds = np.arange(10, 160, 10)  # Speeds from 5 to 155 km/h in increments of 5
+    speeds = np.arange(10, 151, 1)  # Speeds from 10 to 150 km/h
     distance_travelled_in_1_minute = (speeds / 60)
     times = 10 / distance_travelled_in_1_minute  # Time in minutes to cover 10 km
     stopping_distances = stopping_distance(speeds) # distance, in meters, it takes to stop immediately
@@ -97,8 +97,13 @@ def plot_speedmeter_pacemeter_fuelmeter():
 
     # Plot the time markers on the inner arc, displaying only whole numbers and skipping the last value (120 km/h)
     gap_coefficient = -0.9
+    last_i = -10
     for i, time in enumerate(times):
         if time.is_integer():
+            if (i - last_i < 3):
+                last_i = i
+                continue
+            last_i = i
             x = gap_coefficient * np.cos(theta_reversed[i])
             y = gap_coefficient * np.sin(theta_reversed[i])
             ax.text(x, y, f"{int(time)}", ha='center', va='center', fontsize=10, fontweight='bold', color='black')
@@ -109,10 +114,11 @@ def plot_speedmeter_pacemeter_fuelmeter():
     # Plot the consumption markers on the last inner arc
     gap_coefficient = -0.75
     for i, distance in enumerate(stopping_distances):
-        # if distance.is_integer():
-        x = gap_coefficient * np.cos(theta_reversed[i])
-        y = gap_coefficient * np.sin(theta_reversed[i])
-        ax.text(x, y, f"{distance_as_car_length(distance)}", ha='center', va='center', fontsize=10, fontweight='bold', color='black')
+        if i % 10 == 0:
+            car_length = distance_as_car_length(distance)
+            x = gap_coefficient * np.cos(theta_reversed[i])
+            y = gap_coefficient * np.sin(theta_reversed[i])
+            ax.text(x, y, f"{car_length}", ha='center', va='center', fontsize=10, fontweight='bold', color='black')
     # Draw the inner arc with the reversed axis
     for i in range(len(outer_gradient_colors_orange_mid)):
         ax.plot(gap_coefficient * outer_arc_x[i:i+2], gap_coefficient * outer_arc_y[i:i+2], color=outer_gradient_colors_orange_mid[i])
